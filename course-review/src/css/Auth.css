@@ -1,5 +1,6 @@
 .sign-in-container {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     height: 100vh;
@@ -7,8 +8,26 @@
     width: 100vw;
 }
 
+.sign-in-buttons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px;
+}
+
+.account-type-container {
+    display: flex;
+    margin: 10px;
+}
+
+.account-type-btn {
+    margin: 20px;
+}
+
+
 .sign-in-btn {
-    margin-bottom: 100px;
+    margin-bottom: 20px;
     padding: 20px 20px;
     background-color: var(--button-color);
     color: #fff;
@@ -23,6 +42,10 @@
 .sign-in-btn:hover {
     transform: scale(1.2);
 }
+
+
+
+/* Sign Out */
 
 .sign-out-button {
     display: inline-block;
