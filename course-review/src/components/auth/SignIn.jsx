@@ -35,14 +35,20 @@ function SignIn() {
     const createUserAccount = (type) => {
         // Get the current user
         const user = auth.currentUser;
+        console.log(user);
 
         // Add the user to the 'users' collection with accountType
         if (user) {
             firestore.collection('users').doc(user.uid).set({
+                username: user.displayName,
+                emai: user.email,
+                phone: user.phoneNumber,
+                photoURL: user.photoURL,
                 accountType: type
             })
                 .then(() => {
                     console.log("User account created successfully.");
+                    console.log("user is ", user)
                 })
                 .catch((error) => {
                     console.error("Error creating user account: ", error);
