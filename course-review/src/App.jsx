@@ -1,15 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+// import io from 'socket.io-client';
+import { useEffect } from 'react';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './css/App.css';
+
+// firebase
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/firestore';
+import 'firebase/compat/auth';
+import { useAuthState } from 'react-firebase-hooks/auth';
+import { useCollectionData } from 'react-firebase-hooks/firestore';
+import { auth, firestore } from './firebase';
+
+// components
+import SignIn from './components/auth/SignIn';
+import Home from './components/Home';
+
+// const socket = io('http://localhost:3001');
 
 function App() {
+    const [user] = useAuthState(auth);
 
+
+    if (!user) { return (<SignIn />); }
     return (
-        <div className='app'>
-            <h1>Vite + React</h1>
-        </div>
-    )
+        <Router>
+            <Routes>
+                <Route
+                    path="/"
+                    element={
+                        <Home />
+                    }
+                />
+            </Routes>
+        </Router>
+    );
 }
 
-export default App
+export default App;
