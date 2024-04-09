@@ -1,15 +1,28 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
-import 'firebase/compat/auth';
-import { useAuthState } from 'react-firebase-hooks/auth';
-import { useCollectionData } from 'react-firebase-hooks/firestore';
-import { auth, firestore } from '../firebase';
 import '../css/Courses.css'; // Importing CSS file
 
 function Courses() {
+    const [courses, setCourses] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [instructor, setInstructor] = useState('');
+
+    useEffect(() => {
+        // Fetch existing courses from Firestore
+        const fetchCourses = async () => {
+            try {
+                const coursesSnapshot = await firebase.firestore().collection('courses').get();
+                const coursesData = coursesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                setCourses(coursesData);
+            } catch (error) {
+                console.error('Error fetching courses: ', error);
+            }
+        };
+
+        fetchCourses();
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -28,6 +41,8 @@ function Courses() {
         try {
             await firebase.firestore().collection('courses').doc(courseId).set(newCourse);
             console.log('Course added successfully!');
+            // Update the list of courses
+            setCourses(prevCourses => [...prevCourses, newCourse]);
         } catch (error) {
             console.error('Error adding course: ', error);
         }
@@ -45,27 +60,41 @@ function Courses() {
 
     return (
         <div className="courses-container">
-            <form onSubmit={handleSubmit} className="course-form">
-                <label htmlFor="courseName" className="form-label">Course Name:</label>
-                <input
-                    type="text"
-                    id="courseName"
-                    value={courseName}
-                    onChange={(e) => setCourseName(e.target.value)}
-                    required
-                    className="form-input"
-                />
-                <label htmlFor="instructor" className="form-label">Instructor:</label>
-                <input
-                    type="text"
-                    id="instructor"
-                    value={instructor}
-                    onChange={(e) => setInstructor(e.target.value)}
-                    required
-                    className="form-input"
-                />
-                <button type="submit" className="submit-button">Add Course</button>
-            </form>
+            <h1>All Courses</h1>
+            <div className="course-list">
+                {courses.map(course => (
+                    <Link to={`/${course.id}`} className="course-card" key={course.id}>
+                        <div className="course-card-content">
+                            <h2>{course.courseName}</h2>
+                            <p>Instructor: {course.instructor}</p>
+                        </div>
+                    </Link>
+                ))}
+            </div>
+            <div className="add-course">
+                <h2>Add Course</h2>
+                <form onSubmit={handleSubmit} className="course-form">
+                    <label htmlFor="courseName" className="form-label">Course Name:</label>
+                    <input
+                        type="text"
+                        id="courseName"
+                        value={courseName}
+                        onChange={(e) => setCourseName(e.target.value)}
+                        required
+                        className="form-input"
+                    />
+                    <label htmlFor="instructor" className="form-label">Instructor:</label>
+                    <input
+                        type="text"
+                        id="instructor"
+                        value={instructor}
+                        onChange={(e) => setInstructor(e.target.value)}
+                        required
+                        className="form-input"
+                    />
+                    <button type="submit" className="submit-button">Add Course</button>
+                </form>
+            </div>
         </div>
     );
 }

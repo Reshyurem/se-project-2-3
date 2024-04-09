@@ -1,5 +1,4 @@
-// import io from 'socket.io-client';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import './css/App.css';
 
@@ -14,22 +13,39 @@ import { auth, firestore } from './firebase';
 // components
 import SignIn from './components/auth/SignIn';
 import Home from './components/Home';
-import Courses from './components/Courses';
 import Navbar from './components/Navbar';
-
-// const socket = io('http://localhost:3001');
+import Courses from './components/Courses';
+import Course from './components/Course';
 
 function App() {
     const [user] = useAuthState(auth);
+    const [courses, setCourses] = useState([]);
 
+    useEffect(() => {
+        const unsubscribe = firestore.collection('courses').onSnapshot(snapshot => {
+            const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCourses(coursesData);
+        });
+
+        return () => unsubscribe();
+    }, []);
 
     if (!user) { return (<SignIn />); }
+
     return (
         <Router>
             <Navbar />
             <Routes>
-                <Route path="/" element={ <Home /> } />
-                <Route path="/courses" element={ <Courses /> } />
+                <Route path="/" element={<Home />} />
+                <Route path="/courses" element={<Courses />} />
+                {/* Iterate through courses and create routes */}
+                {courses.map(course => (
+                    <Route
+                        key={course.id}
+                        path={`/${course.id}`}
+                        element={<Course courseId={course.id} />} // Assuming you have a Course component
+                    />
+                ))}
             </Routes>
         </Router>
     );
