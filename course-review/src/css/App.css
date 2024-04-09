@@ -15,8 +15,7 @@
     --libra: #5AFF15;
     --button-color: var(--youtube);
 
-    background-color: #161616;
-    color: #bbbbbb;
+    /* background-color: #161616; */
 }
 
 ::-webkit-scrollbar {
@@ -32,3 +31,4 @@
 ::-webkit-scrollbar-track {
     background-color: black;
 }
+

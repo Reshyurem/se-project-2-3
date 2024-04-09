@@ -14,6 +14,7 @@ import { auth, firestore } from './firebase';
 // components
 import SignIn from './components/auth/SignIn';
 import Home from './components/Home';
+import Courses from './components/Courses';
 
 // const socket = io('http://localhost:3001');
 
@@ -25,12 +26,8 @@ function App() {
     return (
         <Router>
             <Routes>
-                <Route
-                    path="/"
-                    element={
-                        <Home />
-                    }
-                />
+                <Route path="/" element={ <Home /> } />
+                <Route path="/courses" element={ <Courses /> } />
             </Routes>
         </Router>
     );
