@@ -63,7 +63,7 @@ function Courses() {
             <h1>All Courses</h1>
             <div className="course-list">
                 {courses.map(course => (
-                    <Link to={`/${course.id}`} className="course-card" key={course.id}>
+                    <Link to={`/courses/${course.id}`} className="course-card" key={course.id}>
                         <div className="course-card-content">
                             <h2>{course.courseName}</h2>
                             <p>Instructor: {course.instructor}</p>

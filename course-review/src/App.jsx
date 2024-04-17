@@ -16,6 +16,7 @@ import Home from './components/Home';
 import Navbar from './components/Navbar';
 import Courses from './components/Courses';
 import Course from './components/Course';
+import Profile from './components/Profile';
 
 function App() {
     const [user] = useAuthState(auth);
@@ -38,11 +39,12 @@ function App() {
             <Routes>
                 <Route path="/" element={<Home />} />
                 <Route path="/courses" element={<Courses />} />
+                <Route path="/profile" element={<Profile />} />
                 {/* Iterate through courses and create routes */}
                 {courses.map(course => (
                     <Route
                         key={course.id}
-                        path={`/${course.id}`}
+                        path={`/courses/${course.id}`}
                         element={<Course courseId={course.id} />} // Assuming you have a Course component
                     />
                 ))}

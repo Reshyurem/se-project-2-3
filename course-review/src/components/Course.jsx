@@ -2,10 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
-import '../css/Course.css'; // Importing CSS file
+import '../css/Course.css';
+import PubSub from 'pubsub-js';
 
-function Course() {
-    const { courseId } = useParams();
+
+function Course(props) {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState('');
 
@@ -14,7 +15,7 @@ function Course() {
         const fetchReviews = async () => {
             try {
                 const reviewsSnapshot = await firebase.firestore().collection('reviews')
-                    .where('courseId', '==', courseId)
+                    .where('courseId', '==', props.courseId)
                     .get();
                 const reviewsData = reviewsSnapshot.docs.map(doc => doc.data());
                 setReviews(reviewsData);
@@ -24,23 +25,27 @@ function Course() {
         };
 
         fetchReviews();
-    }, [courseId]);
+    }, [props.courseId]);
 
     const handleSubmitReview = async (e) => {
         e.preventDefault();
 
         // Create a new review object
         const newReviewData = {
-            courseId,
+            courseId: props.courseId,
             review: newReview
         };
 
         // Add the new review to Firestore under the 'reviews' collection
+        console.log("newReviewData: ", newReviewData)
         try {
             await firebase.firestore().collection('reviews').add(newReviewData);
             console.log('Review added successfully!');
             // Update the list of reviews
             setReviews(prevReviews => [...prevReviews, newReviewData]);
+
+            // Publish a message to the "newReview" topic
+            PubSub.publish('newReview', newReviewData);
         } catch (error) {
             console.error('Error adding review: ', error);
         }
@@ -48,6 +53,7 @@ function Course() {
         // Reset review input
         setNewReview('');
     };
+
 
     return (
         <div className="course-container">
