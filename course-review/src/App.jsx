@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import io from 'socket.io-client';
 import './css/App.css';
 
 // firebase
@@ -17,6 +18,9 @@ import Navbar from './components/Navbar';
 import Courses from './components/Courses';
 import Course from './components/Course';
 import Profile from './components/Profile';
+import Notifications from './components/Notifications';
+
+const socket = io('http://localhost:3000');
 
 function App() {
     const [user] = useAuthState(auth);

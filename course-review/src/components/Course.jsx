@@ -3,10 +3,12 @@ import { useParams } from 'react-router-dom';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import '../css/Course.css';
+import io from 'socket.io-client'
 import PubSub from 'pubsub-js';
 
 
 function Course(props) {
+    const socket = io.connect('http://localhost:3000')
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState('');
 
@@ -36,16 +38,16 @@ function Course(props) {
             review: newReview
         };
 
-        // Add the new review to Firestore under the 'reviews' collection
-        console.log("newReviewData: ", newReviewData)
+        // Emit the new review event to the server
+        socket.emit('newReview', newReviewData);
+
         try {
+            // Add the new review to Firestore under the 'reviews' collection
             await firebase.firestore().collection('reviews').add(newReviewData);
             console.log('Review added successfully!');
+
             // Update the list of reviews
             setReviews(prevReviews => [...prevReviews, newReviewData]);
-
-            // Publish a message to the "newReview" topic
-            PubSub.publish('newReview', newReviewData);
         } catch (error) {
             console.error('Error adding review: ', error);
         }

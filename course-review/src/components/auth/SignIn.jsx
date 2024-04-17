@@ -35,16 +35,32 @@ function SignIn() {
     const createUserAccount = (type) => {
         // Get the current user
         const user = auth.currentUser;
+        console.log("Creating user")
         console.log(user);
+
+
 
         // Add the user to the 'users' collection with accountType
         if (user) {
+            // Validation
+            if (!user.uid || !user.displayName || !user.email) {
+                alert("There was a problem creating the user account. Please try again.")
+                return
+            }
+            if (!accountType) {
+                alert("Please select an account type.")
+                return
+            }
+            
+
             firestore.collection('users').doc(user.uid).set({
+                uid: user.uid,
                 username: user.displayName,
-                emai: user.email,
+                email: user.email,
                 phone: user.phoneNumber,
                 photoURL: user.photoURL,
-                accountType: type
+                accountType: type,
+                events: [],
             })
                 .then(() => {
                     console.log("User account created successfully.");
@@ -58,6 +74,7 @@ function SignIn() {
 
     const signInWithType = (type) => {
         // Set the accountType state
+        console.log("User has set account type to ", type)
         setAccountType(type);
     };
 
