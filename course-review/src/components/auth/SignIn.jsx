@@ -60,7 +60,12 @@ function SignIn() {
                 phone: user.phoneNumber,
                 photoURL: user.photoURL,
                 accountType: type,
-                events: [],
+                events: {
+                    newReview: false,
+                    newCourse: false,
+                    newMessage: false,
+                    friendRequest: false
+                },
             })
                 .then(() => {
                     console.log("User account created successfully.");
