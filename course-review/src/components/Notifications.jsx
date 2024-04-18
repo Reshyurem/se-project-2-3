@@ -8,84 +8,58 @@ import 'firebase/compat/auth';
 import { auth, firestore } from '../firebase';
 
 const Notifications = () => {
-    const socket = io.connect('http://localhost:3000')
-    const [subscriptions, setSubscriptions] = useState([]);
 
-    // List of all events
-    const allEvents = [
-        'newReview',
-        'newMessage',
-        'friendRequest',
-        // Add more events as needed
-    ];
 
     useEffect(() => {
-        // Fetch user's current subscriptions
-        const fetchSubscriptions = async () => {
-            try {
-                const userDoc = await firebase.firestore().collection('users').where('uid', '==', auth.currentUser.uid).get();
-                if (!userDoc.empty) {
-                    const userData = userDoc.docs[0].data();
-                    if (userData && userData.events) {
-                        setSubscriptions(userData.events);
+        // Connect to the Socket.IO server
+        const socket = io('http://localhost:3000'); // Replace 'http://localhost:3000' with your Socket.IO server address
+
+        // Listen for 'newReviewAlert' event from the server
+        console.log("Notifications")
+
+        const fetchData = async () => {
+            const usersRef = firestore.collection('users');
+            const querySnapshot = await usersRef.where('uid', '==', auth.currentUser.uid).get();
+
+            if (!querySnapshot.empty) {
+                const userData = querySnapshot.docs[0].data();
+                if (userData.events) {
+                    if (userData.events.newReview) {
+                        console.log("newReview notifications on " + auth.currentUser.displayName)
+                        socket.on('newReviewAlert', (data) => {
+                            // Handle the new review alert here
+                            console.log('New review alert received:', data);
+                        });
+                    }
+                    if (userData.events.newCourse) {
+                        socket.on('newCourseAlert', (data) => {
+                            // Handle the new course alert here
+                            console.log('New course alert received:', data);
+                        });
+                    }
+                    if (userData.events.newMessage) {
+                        socket.on('newMessageAlert', (data) => {
+                            // Handle the new message alert here
+                            console.log('New message alert received:', data);
+                        });
                     }
                 }
-            } catch (error) {
-                console.error('Error fetching subscriptions:', error);
             }
         };
 
-        fetchSubscriptions();
+        fetchData();
 
-        socket.on('newReviewAlert', (data) => {
-            console.log("(CLIENT) [newReviewAlert]: ", data.review)
-        })
-    }, [auth.currentUser]);
 
-    // Function to handle subscription toggle
-    const toggleSubscription = async (event) => {
-        try {
-            const userDocRef = firebase.firestore().collection('users').doc(auth.currentUser.uid);
-            const userDoc = await userDocRef.get();
-            if (userDoc.exists) {
-                let updatedSubscriptions = [];
+        return () => {
+            socket.disconnect();
+        };
+    }, []);
 
-                if (userDoc.data().events) {
-                    updatedSubscriptions = [...userDoc.data().events];
-                }
 
-                if (updatedSubscriptions.includes(event)) {
-                    // Unsubscribe
-                    updatedSubscriptions = updatedSubscriptions.filter(sub => sub !== event);
-                } else {
-                    // Subscribe
-                    updatedSubscriptions.push(event);
-                }
-
-                await userDocRef.update({
-                    events: updatedSubscriptions
-                });
-
-                setSubscriptions(updatedSubscriptions);
-            }
-        } catch (error) {
-            console.error('Error toggling subscription:', error);
-        }
-    };
 
     return (
         <div>
             <h2>Notifications</h2>
-            <p>Subscribe to events:</p>
-            <ul>
-                {allEvents.map((event, index) => (
-                    <li key={index}>
-                        <button onClick={() => toggleSubscription(event)}>
-                            {subscriptions.includes(event) ? 'Unsubscribe' : 'Subscribe'} to {event}
-                        </button>
-                    </li>
-                ))}
-            </ul>
         </div>
     );
 };

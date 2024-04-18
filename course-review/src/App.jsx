@@ -20,19 +20,32 @@ import Course from './components/Course';
 import Profile from './components/Profile';
 import Notifications from './components/Notifications';
 
-const socket = io('http://localhost:3000');
 
 function App() {
     const [user] = useAuthState(auth);
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
+        // Connect to the Socket.IO server
+        // const socket = io('http://localhost:3000'); // Replace 'http://localhost:3000' with your Socket.IO server address
+
+        // // Listen for 'newReviewAlert' event from the server
+        // console.log("Listening to 'newReviewAlert' event")
+        // socket.on('newReviewAlert', (data) => {
+        //     // Handle the new review alert here
+        //     console.log('New review alert received:', data);
+        // });
+
+
         const unsubscribe = firestore.collection('courses').onSnapshot(snapshot => {
             const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setCourses(coursesData);
+            setCourses(coursesData)
         });
 
-        return () => unsubscribe();
+        return () => {
+            socket.disconnect()
+            unsubscribe()
+        }
     }, []);
 
     if (!user) { return (<SignIn />); }
@@ -47,8 +60,8 @@ function App() {
                 {/* Iterate through courses and create routes */}
                 {courses.map(course => (
                     <Route
-                        key={course.id}
-                        path={`/courses/${course.id}`}
+                        key={course.courseId}
+                        path={`/courses/${course.courseId}`}
                         element={<Course courseId={course.id} />} // Assuming you have a Course component
                     />
                 ))}

@@ -5,7 +5,9 @@ const { Server } = require("socket.io")
 
 // CORS middleware
 const cors = require('cors')
-app.use(cors())
+app.use(cors({
+    origin: "http://localhost:5173/courses"
+}))
 
 const server = http.createServer(app)
 const io = new Server(server, {

@@ -56,6 +56,23 @@ function Course(props) {
         setNewReview('');
     };
 
+    const handleDeleteReviews = async () => {
+        try {
+            // Delete all reviews from the 'reviews' collection in Firestore
+            const querySnapshot = await firebase.firestore().collection('reviews').get();
+            const batch = firebase.firestore().batch();
+            querySnapshot.forEach(doc => {
+                batch.delete(doc.ref);
+            });
+            await batch.commit();
+            console.log('All reviews deleted successfully!');
+            // Update the reviews state to an empty array
+            setReviews([]);
+        } catch (error) {
+            console.error('Error deleting reviews: ', error);
+        }
+    };
+
 
     return (
         <div className="course-container">
@@ -81,6 +98,7 @@ function Course(props) {
                     <button type="submit" className="submit-button">Submit Review</button>
                 </form>
             </div>
+            <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
         </div>
     );
 }

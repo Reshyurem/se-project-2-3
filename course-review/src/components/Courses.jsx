@@ -39,13 +39,15 @@ function Courses() {
 
         // Add the new course to Firestore under the 'courses' collection
         try {
-            await firebase.firestore().collection('courses').doc(courseId).set(newCourse);
+            const newCourseRef = await firebase.firestore().collection('courses').doc(); // Generates a random document ID
+            await newCourseRef.set(newCourse); // Sets the data for the new course document
             console.log('Course added successfully!');
             // Update the list of courses
             setCourses(prevCourses => [...prevCourses, newCourse]);
         } catch (error) {
             console.error('Error adding course: ', error);
         }
+
 
         // Reset form fields
         setCourseName('');
@@ -63,7 +65,7 @@ function Courses() {
             <h1>All Courses</h1>
             <div className="course-list">
                 {courses.map(course => (
-                    <Link to={`/courses/${course.id}`} className="course-card" key={course.id}>
+                    <Link to={`/courses/${course.courseId}`} className="course-card" key={course.id}>
                         <div className="course-card-content">
                             <h2>{course.courseName}</h2>
                             <p>Instructor: {course.instructor}</p>

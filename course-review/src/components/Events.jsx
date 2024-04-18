@@ -12,16 +12,6 @@ const Events = () => {
     const [subscribedEvents, setSubscribedEvents] = useState(null); // Initialize state to null
 
     useEffect(() => {
-        // Connect to the Socket.IO server
-        const socket = io('http://localhost:3000'); // Replace 'http://localhost:3000' with your Socket.IO server address
-
-        // Listen for 'newReviewAlert' event from the server
-        console.log("Listening to 'newReviewAlert' event")
-        socket.on('newReviewAlert', (data) => {
-            // Handle the new review alert here
-            console.log('New review alert received:', data);
-        });
-
         // Fetch user document from Firestore
         const user = firebase.auth().currentUser;
         if (user) {
@@ -39,11 +29,6 @@ const Events = () => {
                 console.log('Error getting documents:', error);
             });
         }
-
-        // Clean up the event listener when the component unmounts
-        return () => {
-            socket.disconnect();
-        };
     }, []);
 
     const handleToggle = async (event) => {
@@ -71,6 +56,9 @@ const Events = () => {
         }
     };
 
+    const handleSaveSettings = () => {
+        window.location.reload(); // Refresh the page
+    };
 
     if (!subscribedEvents) {
         return <div>Loading...</div>; // Add loading indicator while fetching initial values
@@ -105,6 +93,7 @@ const Events = () => {
                     </div>
                 </div>
             </div>
+            <button onClick={handleSaveSettings} className="save-settings-button">Save Settings</button>
         </div>
     );
 };
