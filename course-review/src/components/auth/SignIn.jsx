@@ -71,6 +71,12 @@ function SignIn() {
                 .then(() => {
                     console.log("User account created successfully.");
                     console.log("user is ", user)
+                    // store user in local storage
+                    localStorage.setItem('user', JSON.stringify(user));
+                    // store account type in local storage
+                    localStorage.setItem('accountType', type);
+                    console.log(localStorage.getItem('user'));
+                    console.log(localStorage.getItem('accountType'));
                 })
                 .catch((error) => {
                     console.error("Error creating user account: ", error);
