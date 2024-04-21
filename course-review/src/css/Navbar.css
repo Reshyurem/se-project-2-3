@@ -32,3 +32,13 @@
     color: white;
     font-size: 20px;
 }
+
+.notification-button {
+    margin-left: auto;
+    background-color: transparent;
+    /* border: 1px solid white; */
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    font-size: 5px;
+}

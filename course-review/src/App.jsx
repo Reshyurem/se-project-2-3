@@ -26,7 +26,7 @@ function App() {
     const [courses, setCourses] = useState([]);
 
     useEffect(() => {
-        const unsubscribe = firestore.collection('courses').onSnapshot(snapshot => {
+        firestore.collection('courses').onSnapshot(snapshot => {
             const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             setCourses(coursesData)
         });
@@ -40,6 +40,7 @@ function App() {
             <Navbar />
             <Routes>
                 <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/profile" element={<Profile />} />
                 {/* Iterate through courses and create routes */}

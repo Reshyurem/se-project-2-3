@@ -1,0 +1,34 @@
+.notifications-container {
+    position: absolute;
+    top: 50px;
+    right: 10px;
+    /* Adjust this value as needed */
+    z-index: 1000;
+    background-color: #1e1e1e !important;
+    /* Ensure the panel is on top of other content */
+    max-height: 300px;
+    /* Set a max height to enable scrolling */
+    overflow-y: auto;
+    overflow-x: hidden !important;
+    /* Enable vertical scrolling */
+    width: 300px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 5px;
+    text-align: left !important;
+}
+
+.notifications-empty,
+.notifications-list {
+    background-color: #1e1e1e;
+    font-size: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+    text-align: left;
+    margin-top: 10px;
+    /* Add margin at the top to separate from other content */
+}
+
+.notifications-empty {
+    padding: 10px;
+}

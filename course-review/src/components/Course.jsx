@@ -55,7 +55,8 @@ function Course(props) {
         // Create a new review object
         const newReviewData = {
             courseId: props.courseId,
-            review: newReview
+            review: newReview,
+            userId: auth.currentUser.uid,
         };
 
         // Emit the new review event to the server
