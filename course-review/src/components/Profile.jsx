@@ -1,17 +1,29 @@
 import React, { useState } from 'react';
-import PubSub from 'pubsub-js';
-import { auth, firestore } from '../firebase';
-
-import Events from './Events'
+import AccountDetails from './AccountDetails';
+import Events from './Events';
+import '../css/Profile.css';
 
 function Profile() {
+    const [activeComponent, setActiveComponent] = useState('account');
 
+    const handleComponentChange = (component) => {
+        setActiveComponent(component);
+    };
 
     return (
-        <div>
-            <h2>Profile</h2>
-            <p>{auth.currentUser.displayName}</p>
-            <Events />
+        <div className="container">
+            <div className="sidebar">
+                <button className={activeComponent === 'account' ? 'active' : 'sidebar-button'} onClick={() => handleComponentChange('account')}>
+                    Account Information
+                </button>
+                <button className={activeComponent === 'events' ? 'active' : 'sidebar-button'} onClick={() => handleComponentChange('events')}>
+                    Notifications
+                </button>
+            </div>
+            <div className="main-content">
+                {activeComponent === 'account' && <AccountDetails />}
+                {activeComponent === 'events' && <Events />}
+            </div>
         </div>
     );
 }

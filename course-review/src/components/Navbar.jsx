@@ -16,9 +16,9 @@ const Navbar = () => {
                 <li className="navbar-item">
                     <Link to="/profile" className="navbar-link">Profile</Link>
                 </li>
-                <li className="navbar-item">
+                {/* <li className="navbar-item">
                     <Notifications />
-                </li>
+                </li> */}
             </ul>
         </nav>
     );

@@ -1,0 +1,79 @@
+.account-details {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.user-details {
+    padding: 20px;
+    border-radius: 8px;
+    /* box-shadow: 0 0 10px #0000001a; */
+    background-color: #1e1e1e !important;
+    color: #dddddd;
+}
+
+.info-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.info-panel {
+    display: flex;
+    justify-content: space-between;
+    /* Aligns left and right panels */
+    margin-bottom: 25px;
+    font-size: 1px !important;
+}
+
+.info-label {
+    font-size: 20px;
+    font-weight: bold;
+    margin-right: 10px;
+    flex: 1;
+    text-align: left;
+    /* Left panel takes 50% of the width */
+}
+
+.info-value {
+    font-size: 20px;
+    margin: 0;
+    flex: 2;
+    text-align: left;
+    /* Right panel takes 50% of the width */
+}
+
+input {
+    padding: 5px;
+    width: 100%;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+.edit-container {
+    text-align: left;
+}
+
+.edit-button {
+    background-color: #2e2e2e !important;
+    border: none;
+    font-size: 18px;
+}
+
+.edit-button:hover {
+    background-color: #444444 !important;
+}
+
+.save-button {
+    background-color: #28a745;
+}

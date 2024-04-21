@@ -1,0 +1,93 @@
+.container {
+    display: flex;
+}
+
+
+.sidebar {
+    width: 200px;
+    background-color: #1e1e1e;
+    padding: 20px;
+    color: white;
+    height: calc(100vh - 88px);
+    /* Adjusted height based on the navbar height */
+    overflow-y: auto;
+    /* Add a scrollbar if content overflows */
+}
+
+.sidebar-button {
+    font-size: 18px;
+}
+
+.sidebar button {
+    font-size: 18px;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 5px;
+    border: none;
+    background-color: #333;
+    cursor: pointer;
+    color: white;
+}
+
+.sidebar button.active {
+    background-color: white;
+    color: #1e1e1e;
+}
+
+.main-content {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Other styling for consistency */
+h2 {
+    color: #1e1e1e;
+}
+
+.user-details {
+    background-color: #f5f5f5;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.detail-label {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+input {
+    margin-bottom: 10px;
+    padding: 5px;
+    width: 100%;
+}
+
+button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button:hover {
+    background-color: #444444;
+}
+
+.edit-button {
+    background-color: transparent;
+    border: none;
+    margin-left: 5px;
+}
+
+.save-button {
+    background-color: #28a745;
+    margin-left: 5px;
+}
+
+.fa-pencil {
+    color: white;
+}
