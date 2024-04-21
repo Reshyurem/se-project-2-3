@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { auth, firestore } from '../firebase';;
+import { auth, firestore } from '../firebase';
 import firebase from 'firebase/compat/app';
 import 'firebase/firestore';
 import '../css/AccountDetails.css';

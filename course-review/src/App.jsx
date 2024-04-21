@@ -25,6 +25,12 @@ function App() {
     const [user] = useAuthState(auth);
     const [courses, setCourses] = useState([]);
 
+    useEffect(() => {
+        const unsubscribe = firestore.collection('courses').onSnapshot(snapshot => {
+            const coursesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            setCourses(coursesData)
+        });
+    }, []);
 
 
     if (!user) { return (<SignIn />); }
