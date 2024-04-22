@@ -17,7 +17,8 @@ function Courses() {
     const [courseId, setCourseId] = useState('');
     const [userId, setUserId] = useState('');
     const [currentUserDoc, setCurrentUserDoc] = useState(null);
-    const [rerenderKey, setRerenderKey] = useState(0); // Add rerender key state
+    const [rerenderKey, setRerenderKey] = useState(0);
+    const [searchQuery, setSearchQuery] = useState('');
 
     useEffect(() => {
         const fetchUserDoc = async () => {
@@ -69,6 +70,14 @@ function Courses() {
     //         socket.off('newReviewAlert');
     //     };
     // }, []);
+
+    const filteredCourses = courses.filter(course => {
+        return course.courseName.toLowerCase().includes(searchQuery.toLowerCase());
+    });
+
+    const handleSearchChange = (e) => {
+        setSearchQuery(e.target.value);
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -176,19 +185,27 @@ function Courses() {
     return (
         <div className="courses-container">
             <h1>All Courses</h1>
+            <div className="search-bar">
+                <input
+                    type="text"
+                    placeholder="Search by course name"
+                    value={searchQuery}
+                    onChange={handleSearchChange}
+                />
+            </div>
             <div className="course-list">
-                {courses.map(course => (
+                {filteredCourses.map(course => (
                     <div key={course.id} className="course-card">
                         <Link to={`/courses/${course.courseId}`} className="course-card-content">
                             <h2>{course.courseName}</h2>
                             <p>{course.instructor}</p>
                         </Link>
-                        <div className="subscribe-icon" onClick={() => handleSubscribe(course.courseId)}>
+                        <div className="subscribe-icon">
                             <FontAwesomeIcon
                                 icon={faBell}
                                 style={{
                                     fontSize: "18px",
-                                    color: isSubscribed(course.courseId) ? "yellow" : "#555555"
+                                    color: "#555555"
                                 }}
                             />
                         </div>

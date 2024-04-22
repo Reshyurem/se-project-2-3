@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import '../css/Navbar.css'
+import '../css/Navbar.css';
 import Notifications from './Notifications';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
-    const [showNotifications, setShowNotifications] = useState(false);
+    const [showNotifications, setShowNotifications] = useState(true);
 
     const handleToggleNotifications = () => {
         setShowNotifications(!showNotifications);
@@ -26,7 +26,7 @@ const Navbar = () => {
                 </li>
                 <li className="navbar-item">
                     <button className="notification-button" onClick={handleToggleNotifications}>
-                        <FontAwesomeIcon icon={faBell} size="4x" />
+                        <FontAwesomeIcon icon={faBell} size="4x" style={{ opacity: showNotifications? 1 : 0.5 }} />
                     </button>
                     {showNotifications && <Notifications />}
                 </li>

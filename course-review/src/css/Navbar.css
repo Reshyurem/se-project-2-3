@@ -1,5 +1,6 @@
+/* Navbar.css */
+
 .navbar {
-    /* background-color: #002E2C; */
     background-color: #1e1e1e;
     color: white;
     padding: 16px;
@@ -27,18 +28,27 @@
     background-color: #028090;
 }
 
-.navbar-link {
-    color: #035E7B;
-    color: white;
-    font-size: 20px;
-}
-
 .notification-button {
     margin-left: auto;
     background-color: transparent;
-    /* border: 1px solid white; */
     position: absolute;
     right: 10px;
     top: 0px;
     font-size: 5px;
+}
+
+/* Conditional styling */
+.navbar .notification-button {
+    color: var(--notification-color);
+}
+
+/* Define CSS variables */
+:root {
+    --notification-color: white;
+}
+
+
+/* Conditional styling */
+.navbar .notification-button {
+    color: var(--notification-color);
 }

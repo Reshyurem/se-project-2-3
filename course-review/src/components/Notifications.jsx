@@ -26,6 +26,12 @@ const Notifications = () => {
                             return;
                         }
                     }
+                    if (userData && userData.events) {
+                        const events = userData.events;
+                        if (!events.newReview) {
+                            return; // Don't show the notification
+                        }
+                    }
                 }
             } catch (error) {
                 console.error('Error fetching subscribed courses: ', error);
