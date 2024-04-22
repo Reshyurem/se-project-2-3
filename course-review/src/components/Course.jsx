@@ -13,6 +13,30 @@ function Course(props) {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState('');
     const [isAlertSet, setIsAlertSet] = useState(false);
+    const [hasCourse, setHasCourse] = useState(false);
+
+    // check if the user has the courseId in their courses array
+    useEffect(() => {
+        const checkCourse = async () => {
+            try {
+                const userDoc = await firebase.firestore().collection('users').doc(auth.currentUser.uid).get();
+                const userData = userDoc.data();
+                console.log(userData);
+                console.log(userData.subscribedCourses);
+                console.log(props.courseId);
+                if (userData.subscribedCourses && userData.subscribedCourses.includes(props.courseId)) {
+                    setHasCourse(true);
+                } else {
+                    console.log('User does not have this course');
+                    setHasCourse(false);
+                }
+            } catch (error) {
+                console.error('Error fetching user data: ', error);
+            }
+        };
+
+        checkCourse();
+    }, [auth.currentUser.uid, props.courseId]);
 
     useEffect(() => {
         // Fetch existing reviews for the current course from Firestore
@@ -175,6 +199,49 @@ function Course(props) {
                 <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
             )}
         </div>
+        <>
+            <div>
+                View Chatroom
+            </div>
+            {hasCourse && (
+                <div className="course-container">
+                    {localStorage.getItem('accountType') === 'professor' && (
+                        <div>
+                            <h1>Course Reviews</h1>
+                            <div className="reviews-list">
+                                {reviews.map((review, index) => (
+                                    <div key={index} className="review">
+                                        <p>{review.review}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {localStorage.getItem('accountType') === 'student' && (
+                        <div className="add-review">
+                            <h2>Add Review</h2>
+                            <form onSubmit={handleSubmitReview} className="review-form">
+                                <label htmlFor="newReview" className="form-label">Your Review:</label>
+                                <textarea
+                                    id="newReview"
+                                    value={newReview}
+                                    onChange={(e) => setNewReview(e.target.value)}
+                                    required
+                                    className="form-input"
+                                />
+                                <button type="submit" className="submit-button">Submit Review</button>
+                            </form>
+                        </div>
+                    )}
+                    <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
+                    {isAlertSet ? (
+                        <button onClick={handleRemoveAlert} className="remove-alert-button">Remove from Alerts</button>
+                    ) : (
+                        <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
+                    )}
+                </div>
+            )}
+        </>
     );
 }
 
