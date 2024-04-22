@@ -1,0 +1,73 @@
+/* Forum.css */
+
+.discussion-forum {
+    margin: 20px;
+}
+
+.discussion-forum h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.discussion-forum form {
+    margin-bottom: 20px;
+}
+
+.discussion-forum form label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.discussion-forum form textarea {
+    width: 70%;
+    height: 100px;
+    resize: vertical;
+    padding: 5px;
+    margin-bottom: 10px;
+}
+
+.discussion-forum form button {
+    padding: 5px 12px;
+    background-color:#6B4C90;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+.posts {
+    margin-top: 15px;
+}
+
+.post {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+.post h3 {
+    margin-top: 0;
+}
+
+.post p {
+    margin-bottom: 10px;
+}
+
+.post button {
+    padding: 5px 15px;
+    background-color: #6B4C90;
+    color: #fff;
+    border: none;
+    cursor: pointer;
+}
+
+  
+.replies {
+    margin-left: 20px; /* Adjust this value to shift the replies to the right */
+  }
+  
+.reply {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+  }
+  

@@ -4,15 +4,17 @@ import 'firebase/compat/firestore';
 import 'firebase/compat/auth';
 import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
+import { initializeApp } from "firebase/app";
+
 
 firebase.initializeApp({
-    apiKey: "AIzaSyA3xL5ioXcPsSLuYy0Tr-aStc5ssNI3g-w",
-    authDomain: "course-review-fd498.firebaseapp.com",
-    projectId: "course-review-fd498",
-    storageBucket: "course-review-fd498.appspot.com",
-    messagingSenderId: "128569235135",
-    appId: "1:128569235135:web:7cdc30bb4cfd5ed81a980a",
-    measurementId: "G-JJV9KP0WBT"
+    apiKey: "AIzaSyCUEe7RmC_CKpQd42BGYr5uso0Mwa_jkSw",
+  authDomain: "course-review-2.firebaseapp.com",
+  projectId: "course-review-2",
+  storageBucket: "course-review-2.appspot.com",
+  messagingSenderId: "308484344408",
+  appId: "1:308484344408:web:5157f5aea6ceb6c934582d",
+  measurementId: "G-3NVK60Y1YS"
 });
 
 export const auth = firebase.auth();

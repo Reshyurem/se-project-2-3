@@ -8,7 +8,7 @@ import { io } from 'socket.io-client';
 import { auth, firestore } from '../firebase';
 import '../css/Courses.css'; // Importing CSS file
 
-const socket = io.connect('http://localhost:3000');
+// const socket = io.connect('http://localhost:3000');
 
 function Courses() {
     const [courses, setCourses] = useState([]);
