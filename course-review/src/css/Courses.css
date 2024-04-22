@@ -1,42 +1,9 @@
 .courses-container {
-    max-width: 600px;
-    margin: 0 auto;
-    padding: 20px;
-}
-
-.course-form {
-    display: flex;
-    flex-direction: column;
-}
-
-.form-label {
-    margin-bottom: 8px;
-}
-
-.form-input {
-    padding: 8px;
-    margin-bottom: 16px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-}
-
-.submit-button {
-    padding: 10px 20px;
-    background-color: #007bff;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.submit-button:hover {
-    background-color: #0056b3;
-}
-
-.courses-container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    position: relative;
+    /* Added */
 }
 
 .course-list {
@@ -46,10 +13,14 @@
 }
 
 .course-card {
+    position: relative;
+    height: 200px;
+    /* Added */
+    padding: 10px 30px;
     text-decoration: none;
     background-color: #f8f9fa;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
     transition: transform 0.2s ease-in-out;
     color: #212529;
 }
@@ -59,7 +30,12 @@
 }
 
 .course-card-content {
+    text-decoration: none;
     padding: 20px;
+}
+
+.course-card-content:hover {
+    cursor: pointer !important;
 }
 
 .add-course {
@@ -89,3 +65,15 @@
 .submit-button:hover {
     background-color: #0056b3;
 }
+
+.subscribe-icon {
+    position: absolute;
+    /* Added */
+    bottom: 10px;
+    /* Added */
+    right: 10px;
+    /* Added */
+    cursor: pointer;
+    width: 20px;
+}
+

@@ -2,18 +2,38 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { auth, firestore } from '../firebase';
 import '../css/Courses.css'; // Importing CSS file
 
 function Courses() {
     const [courses, setCourses] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [instructor, setInstructor] = useState('');
+    const [currentUserDoc, setCurrentUserDoc] = useState(null);
+    const [rerenderKey, setRerenderKey] = useState(0); // Add rerender key state
+
+    useEffect(() => {
+        const fetchUserDoc = async () => {
+            try {
+                const userRef = await firestore.collection('users').where('uid', '==', auth.currentUser.uid).get();
+                if (!userRef.empty) {
+                    setCurrentUserDoc(userRef.docs[0]);
+                }
+            } catch (error) {
+                console.error('Error fetching user document: ', error);
+            }
+        };
+
+        fetchUserDoc();
+    }, []);
 
     useEffect(() => {
         // Fetch existing courses from Firestore
         const fetchCourses = async () => {
             try {
-                const coursesSnapshot = await firebase.firestore().collection('courses').get();
+                const coursesSnapshot = await firestore.collection('courses').get();
                 const coursesData = coursesSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
                 setCourses(coursesData);
             } catch (error) {
@@ -22,7 +42,7 @@ function Courses() {
         };
 
         fetchCourses();
-    }, []);
+    }, [currentUserDoc, rerenderKey]); // Add rerenderKey to the dependency array
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -39,7 +59,7 @@ function Courses() {
 
         // Add the new course to Firestore under the 'courses' collection
         try {
-            const newCourseRef = await firebase.firestore().collection('courses').doc(); // Generates a random document ID
+            const newCourseRef = await firestore.collection('courses').doc(); // Generates a random document ID
             await newCourseRef.set(newCourse); // Sets the data for the new course document
             console.log('Course added successfully!');
             // Update the list of courses
@@ -47,7 +67,6 @@ function Courses() {
         } catch (error) {
             console.error('Error adding course: ', error);
         }
-
 
         // Reset form fields
         setCourseName('');
@@ -60,17 +79,51 @@ function Courses() {
         return Math.random().toString(36).substr(2, 9); // Random alphanumeric string
     };
 
+    const isSubscribed = (courseId) => {
+        return currentUserDoc && currentUserDoc.data().subscribedCourses && currentUserDoc.data().subscribedCourses.includes(courseId);
+    };
+
+    const handleSubscribe = async (courseId) => {
+        try {
+            if (currentUserDoc) {
+                if (isSubscribed(courseId)) {
+                    await currentUserDoc.ref.update({
+                        subscribedCourses: firebase.firestore.FieldValue.arrayRemove(courseId)
+                    });
+                } else {
+                    await currentUserDoc.ref.update({
+                        subscribedCourses: firebase.firestore.FieldValue.arrayUnion(courseId)
+                    });
+                }
+                console.log('Subscribed to course successfully!');
+                // Update the rerender key to trigger a re-render
+                setRerenderKey(prevKey => prevKey + 1);
+            }
+        } catch (error) {
+            console.error('Error subscribing to course: ', error);
+        }
+    };
+
     return (
         <div className="courses-container">
             <h1>All Courses</h1>
             <div className="course-list">
                 {courses.map(course => (
-                    <Link to={`/courses/${course.courseId}`} className="course-card" key={course.id}>
-                        <div className="course-card-content">
+                    <div key={course.id} className="course-card">
+                        <Link to={`/courses/${course.courseId}`} className="course-card-content">
                             <h2>{course.courseName}</h2>
-                            <p>Instructor: {course.instructor}</p>
+                            <p>{course.instructor}</p>
+                        </Link>
+                        <div className="subscribe-icon" onClick={() => handleSubscribe(course.courseId)}>
+                            <FontAwesomeIcon
+                                icon={faBell}
+                                style={{
+                                    fontSize: "18px",
+                                    color: isSubscribed(course.courseId) ? "yellow" : "#555555"
+                                }}
+                            />
                         </div>
-                    </Link>
+                    </div>
                 ))}
             </div>
             <div className="add-course">
