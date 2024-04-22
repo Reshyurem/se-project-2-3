@@ -49,26 +49,26 @@ function Courses() {
         fetchCourses();
     }, [currentUserDoc, rerenderKey]); // Add rerenderKey to the dependency array
 
-    useEffect(() => {
-        if (auth.currentUser) {
-            console.log("Checking for new review notifications for " + auth.currentUser.displayName);
-            socket.on('newReviewAlert', async (data) => {
-                try {
-                    const courseDoc = await firestore.collection('courses').doc(data.courseId).get();
-                    const courseName = courseDoc.data().courseName;
-                    console.log(`New review alert for course ${courseName}`);
-                    // Emitting the course ID and course name
-                    socket.emit('newReviewAlert', { courseId: data.courseId, courseName });
-                } catch (error) {
-                    console.error('Error fetching course name: ', error);
-                }
-            });
-        }
+    // useEffect(() => {
+    //     if (auth.currentUser) {
+    //         console.log("Checking for new review notifications for " + auth.currentUser.displayName);
+    //         socket.on('newReviewAlert', async (data) => {
+    //             try {
+    //                 const courseDoc = await firestore.collection('courses').doc(data.courseId).get();
+    //                 const courseName = courseDoc.data().courseName;
+    //                 console.log(`New review alert for course ${courseName}`);
+    //                 // Emitting the course ID and course name
+    //                 socket.emit('newReviewAlert', { courseId: data.courseId, courseName });
+    //             } catch (error) {
+    //                 console.error('Error fetching course name: ', error);
+    //             }
+    //         });
+    //     }
 
-        return () => {
-            socket.off('newReviewAlert');
-        };
-    }, []);
+    //     return () => {
+    //         socket.off('newReviewAlert');
+    //     };
+    // }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();

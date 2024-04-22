@@ -22,6 +22,9 @@ const Notifications = () => {
                         if (!subscribedCourses.includes(data.courseId)) {
                             return; // Don't show the notification
                         }
+                        if(data.userId == auth.currentUser.uid) {
+                            return;
+                        }
                     }
                 }
             } catch (error) {

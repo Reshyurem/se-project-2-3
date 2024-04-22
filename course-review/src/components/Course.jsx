@@ -142,33 +142,10 @@ function Course(props) {
         }
     };
 
-    const handleSetAlert = async () => {
-        try {
-            const userRef = firebase.firestore().collection('users').doc(auth.currentUser.uid);
-            await userRef.update({
-                courseAlerts: firebase.firestore.FieldValue.arrayUnion(props.courseId)
-            });
-            setIsAlertSet(true);
-            console.log('Course alert set successfully!');
-        } catch (error) {
-            console.error('Error setting course alert: ', error);
-        }
-    };
 
-    const handleRemoveAlert = async () => {
-        try {
-            const userRef = firebase.firestore().collection('users').doc(auth.currentUser.uid);
-            await userRef.update({
-                courseAlerts: firebase.firestore.FieldValue.arrayRemove(props.courseId)
-            });
-            setIsAlertSet(false);
-            console.log('Course alert removed successfully!');
-        } catch (error) {
-            console.error('Error removing course alert: ', error);
-        }
-    };
 
     return (
+        <>
         <div className="course-container">
             <h1>Course Reviews</h1>
             <div className="reviews-list">
@@ -178,7 +155,7 @@ function Course(props) {
                     </div>
                 ))}
             </div>
-            <div className="add-review">
+            {/* <div className="add-review">
                 <h2>Add Review</h2>
                 <form onSubmit={handleSubmitReview} className="review-form">
                     <label htmlFor="newReview" className="form-label">Your Review:</label>
@@ -189,19 +166,11 @@ function Course(props) {
                         required
                         className="form-input"
                     />
-                    <button type="submit" className="submit-button">Submit Review</button>
                 </form>
-            </div>
-            <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
-            {isAlertSet ? (
-                <button onClick={handleRemoveAlert} className="remove-alert-button">Remove from Alerts</button>
-            ) : (
-                <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
-            )}
+            </div> */}
         </div>
-        <>
             <div>
-                View Chatroom
+                View Chatroom {hasCourse}
             </div>
             {hasCourse && (
                 <div className="course-container">
@@ -234,11 +203,6 @@ function Course(props) {
                         </div>
                     )}
                     <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
-                    {isAlertSet ? (
-                        <button onClick={handleRemoveAlert} className="remove-alert-button">Remove from Alerts</button>
-                    ) : (
-                        <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
-                    )}
                 </div>
             )}
         </>
