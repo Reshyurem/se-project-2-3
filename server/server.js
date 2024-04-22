@@ -23,7 +23,7 @@ io.on('connection', (socket) => {
     // Message event
     socket.on('newReview', (data) => {
         console.log('(SERVER) New review: ' + data.review);
-        socket.broadcast.emit('newReviewAlert', data.review);
+        socket.broadcast.emit('newReviewAlert', data);
     })
 
 

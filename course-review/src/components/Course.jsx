@@ -52,11 +52,33 @@ function Course(props) {
     const handleSubmitReview = async (e) => {
         e.preventDefault();
 
+        // Fetch the courseName from Firestore
+        let courseName = '';
+        try {
+            console.log("CourseId: ", props.courseId);
+            const courseQuery = await firebase.firestore().collection('courses').where('courseId', '==', props.courseId).limit(1).get();
+            if (!courseQuery.empty) {
+                courseQuery.forEach(doc => {
+                    courseName = doc.data().courseName;
+                    console.log("Course Name: ", courseName);
+                });
+            } else {
+                console.error('Course document not found');
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching course data: ', error);
+            return;
+        }
+
         // Create a new review object
+        console.log("Course Name: ", courseName)
         const newReviewData = {
             courseId: props.courseId,
             review: newReview,
             userId: auth.currentUser.uid,
+            username: auth.currentUser.displayName,
+            courseName: courseName
         };
 
         // Emit the new review event to the server
@@ -76,6 +98,8 @@ function Course(props) {
         // Reset review input
         setNewReview('');
     };
+
+
 
     const handleDeleteReviews = async () => {
         try {
@@ -122,40 +146,34 @@ function Course(props) {
 
     return (
         <div className="course-container">
-            {localStorage.getItem('accountType') === 'professor' && (
-                <div>
-                    <h1>Course Reviews</h1>
-                    <div className="reviews-list">
-                        {reviews.map((review, index) => (
-                            <div key={index} className="review">
-                                <p>{review.review}</p>
-                            </div>
-                        ))}
+            <h1>Course Reviews</h1>
+            <div className="reviews-list">
+                {reviews.map((review, index) => (
+                    <div key={index} className="review">
+                        <p>{review.review}</p>
                     </div>
-                </div>
-            )}
-            {localStorage.getItem('accountType') === 'student' && (
-                <div className="add-review">
-                    <h2>Add Review</h2>
-                    <form onSubmit={handleSubmitReview} className="review-form">
-                        <label htmlFor="newReview" className="form-label">Your Review:</label>
-                        <textarea
-                            id="newReview"
-                            value={newReview}
-                            onChange={(e) => setNewReview(e.target.value)}
-                            required
-                            className="form-input"
-                        />
-                        <button type="submit" className="submit-button">Submit Review</button>
-                    </form>
-                </div>
-            )}
-            {/* <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
+                ))}
+            </div>
+            <div className="add-review">
+                <h2>Add Review</h2>
+                <form onSubmit={handleSubmitReview} className="review-form">
+                    <label htmlFor="newReview" className="form-label">Your Review:</label>
+                    <textarea
+                        id="newReview"
+                        value={newReview}
+                        onChange={(e) => setNewReview(e.target.value)}
+                        required
+                        className="form-input"
+                    />
+                    <button type="submit" className="submit-button">Submit Review</button>
+                </form>
+            </div>
+            <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
             {isAlertSet ? (
                 <button onClick={handleRemoveAlert} className="remove-alert-button">Remove from Alerts</button>
             ) : (
                 <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
-            )} */}
+            )}
         </div>
     );
 }

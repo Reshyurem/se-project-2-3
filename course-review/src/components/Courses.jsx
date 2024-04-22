@@ -4,8 +4,11 @@ import firebase from 'firebase/compat/app';
 import 'firebase/compat/firestore';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { io } from 'socket.io-client';
 import { auth, firestore } from '../firebase';
 import '../css/Courses.css'; // Importing CSS file
+
+const socket = io.connect('http://localhost:3000');
 
 function Courses() {
     const [courses, setCourses] = useState([]);
@@ -43,6 +46,27 @@ function Courses() {
 
         fetchCourses();
     }, [currentUserDoc, rerenderKey]); // Add rerenderKey to the dependency array
+
+    useEffect(() => {
+        if (auth.currentUser) {
+            console.log("Checking for new review notifications for " + auth.currentUser.displayName);
+            socket.on('newReviewAlert', async (data) => {
+                try {
+                    const courseDoc = await firestore.collection('courses').doc(data.courseId).get();
+                    const courseName = courseDoc.data().courseName;
+                    console.log(`New review alert for course ${courseName}`);
+                    // Emitting the course ID and course name
+                    socket.emit('newReviewAlert', { courseId: data.courseId, courseName });
+                } catch (error) {
+                    console.error('Error fetching course name: ', error);
+                }
+            });
+        }
+
+        return () => {
+            socket.off('newReviewAlert');
+        };
+    }, []);
 
     const handleSubmit = async (e) => {
         e.preventDefault();
