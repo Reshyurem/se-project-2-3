@@ -8,6 +8,8 @@ function Courses() {
     const [courses, setCourses] = useState([]);
     const [courseName, setCourseName] = useState('');
     const [instructor, setInstructor] = useState('');
+    const [courseId, setCourseId] = useState('');
+    const [userId, setUserId] = useState('');
 
     useEffect(() => {
         // Fetch existing courses from Firestore
@@ -54,6 +56,49 @@ function Courses() {
         setInstructor('');
     };
 
+    const handleSubmitAdd = async (e) => {
+        e.preventDefault();
+
+        // Add the courseId, if it exists in the courses collection, to the user's courses
+        try {
+            // get the course from the courses collection where courseId is equal to the courseId entered
+            console.log(courseId);
+            const courseOut = await firebase.firestore().collection('courses')
+                .where('courseId', '==', courseId)
+                .limit(1)
+                .get();
+                console.log(courseOut);
+            if (courseOut.empty) {
+                console.error('Course does not exist!');
+                return;
+            }
+            const courseRef = courseOut.docs[0];
+            console.log(courseRef);
+            if (courseRef.exists) {
+                const userRef = await firebase.firestore().collection('users').doc(userId).get();
+                console.log(userRef);
+                if (userRef.exists) {
+                    const userData = userRef.data();
+                    if (!userData.courses.includes(courseId)) {
+                        await firebase.firestore().collection('users').doc(userId).update({
+                            courses: firebase.firestore.FieldValue.arrayUnion(courseId)
+                        });
+                        console.log('Course added to user successfully!');
+                    } else {
+                        console.log('User already has course!');
+                    }
+                } else {
+                    console.error('User does not exist!');
+                }
+            } else {
+                console.error('Course does not exist!');
+            }
+        } catch (error) {
+            console.error('Error adding course to user: ', error)
+        }
+    };
+
+
     // Function to generate a unique course ID (you can customize this as needed)
     const generateCourseId = () => {
         // Implement your own logic to generate a unique course ID, for example:
@@ -73,30 +118,58 @@ function Courses() {
                     </Link>
                 ))}
             </div>
-            <div className="add-course">
-                <h2>Add Course</h2>
-                <form onSubmit={handleSubmit} className="course-form">
-                    <label htmlFor="courseName" className="form-label">Course Name:</label>
-                    <input
-                        type="text"
-                        id="courseName"
-                        value={courseName}
-                        onChange={(e) => setCourseName(e.target.value)}
-                        required
-                        className="form-input"
-                    />
-                    <label htmlFor="instructor" className="form-label">Instructor:</label>
-                    <input
-                        type="text"
-                        id="instructor"
-                        value={instructor}
-                        onChange={(e) => setInstructor(e.target.value)}
-                        required
-                        className="form-input"
-                    />
-                    <button type="submit" className="submit-button">Add Course</button>
-                </form>
-            </div>
+            {localStorage.getItem('accountType') === 'admin' && (
+                <div>
+                    <div className="add-course">
+                        <h2>Add Course</h2>
+                        <form onSubmit={handleSubmit} className="course-form">
+                            <label htmlFor="courseName" className="form-label">Course Name:</label>
+                            <input
+                                type="text"
+                                id="courseName"
+                                value={courseName}
+                                onChange={(e) => setCourseName(e.target.value)}
+                                required
+                                className="form-input"
+                            />
+                            <label htmlFor="instructor" className="form-label">Instructor:</label>
+                            <input
+                                type="text"
+                                id="instructor"
+                                value={instructor}
+                                onChange={(e) => setInstructor(e.target.value)}
+                                required
+                                className="form-input"
+                            />
+                            <button type="submit" className="submit-button">Add Course</button>
+                        </form>
+                    </div>
+                    <div className='add-user-to-course'>
+                        <h2>Add User to Course</h2>
+                        <form onSubmit={handleSubmitAdd} className="course-form">
+                            <label htmlFor="courseId" className="form-label">CourseId:</label>
+                            <input
+                                type="text"
+                                id="courseId"
+                                value={courseId}
+                                onChange={(e) => setCourseId(e.target.value)}
+                                required
+                                className="form-input"
+                            />
+                            <label htmlFor="userId" className="form-label">User Id:</label>
+                            <input
+                                type="text"
+                                id="userId"
+                                value={userId}
+                                onChange={(e) => setUserId(e.target.value)}
+                                required
+                                className="form-input"
+                            />
+                            <button type="submit" className="submit-button">Add Course</button>
+                        </form>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
