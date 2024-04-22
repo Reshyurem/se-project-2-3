@@ -6,10 +6,12 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
 
 const Navbar = () => {
-    const [showNotifications, setShowNotifications] = useState(false);
+    const [showNotifications, setShowNotifications] = useState([false]);
 
     const handleToggleNotifications = () => {
-        setShowNotifications(!showNotifications);
+        let temp = [!showNotifications[0]];
+        setShowNotifications([...temp]);
+        console.log(temp);
     };
 
     return (
@@ -25,10 +27,11 @@ const Navbar = () => {
                     <Link to="/profile" className="navbar-link">Profile</Link>
                 </li>
                 <li className="navbar-item">
-                    <button className="notification-button" onClick={handleToggleNotifications}>
-                        <FontAwesomeIcon icon={faBell} size="4x" />
+                    <button className="notification-button" 
+                    onClick={handleToggleNotifications}>
+                        <FontAwesomeIcon id="bell" icon={faBell} style={{ color : showNotifications[0] ? "yellow" : "#555555" }}size="4x" />
                     </button>
-                    {showNotifications && <Notifications />}
+                    {showNotifications[0] && <Notifications />}
                 </li>
             </ul>
         </nav>
