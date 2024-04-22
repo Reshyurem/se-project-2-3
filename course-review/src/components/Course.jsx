@@ -21,9 +21,10 @@ function Course(props) {
             try {
                 const userDoc = await firebase.firestore().collection('users').doc(auth.currentUser.uid).get();
                 const userData = userDoc.data();
-                console.log(userData.courses);
+                console.log(userData);
+                console.log(userData.subscribedCourses);
                 console.log(props.courseId);
-                if (userData.courses && userData.courses.includes(props.courseId)) {
+                if (userData.subscribedCourses && userData.subscribedCourses.includes(props.courseId)) {
                     setHasCourse(true);
                 } else {
                     console.log('User does not have this course');

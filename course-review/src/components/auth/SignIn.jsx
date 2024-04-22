@@ -69,8 +69,7 @@ function SignIn() {
                             newMessage: false,
                             friendRequest: false
                         },
-                        notifications: [],
-                        courses: [],
+                        subscribedCourses: [],
                     })
                         .then(() => {
                             console.log("User account created successfully.");

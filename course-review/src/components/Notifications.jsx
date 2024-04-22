@@ -1,91 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import firebase from 'firebase/compat/app';
-import 'firebase/compat/firestore';
-import '../css/Notifications.css';
+import { io } from 'socket.io-client';
 import { auth, firestore } from '../firebase';
-import io from 'socket.io-client'
+import NotificationCard from './NotificationCard'; // Import the NotificationCard component
 
-const Notifications = () => {
-    const [notifications, setNotifications] = useState([]);
-
-    useEffect(() => {
-        const fetchNotifications = async () => {
-            try {
-                const userDoc = await firebase.firestore().collection('users').doc(auth.currentUser.uid).get();
-                const userData = userDoc.data();
-                setNotifications(userData.notifications || []);
-            } catch (error) {
-                console.error('Error fetching notifications: ', error);
-            }
-        };
-
-        fetchNotifications();
-    }, [auth.currentUser.uid]);
-
-    useEffect(() => {
-        const updateNotifications = async () => {
-            try {
-                const userRef = firebase.firestore().collection('users').where('uid', '==', auth.currentUser.uid);
-                console.log("Updating");
-                console.log(notifications);
-
-                const querySnapshot = await userRef.get();
-                console.log(typeof querySnapshot);
-                if (!querySnapshot.empty) {
-                    const promises = [];
-                    querySnapshot.forEach((doc) => {
-                        promises.push(doc.ref.update({
-                            notifications: notifications
-                        }));
-                    });
-                    await Promise.all(promises);
-
-                    console.log('Notifications updated in Firestore successfully!');
-                } else {
-                    console.log('No matching documents.');
-                }
-            } catch (error) {
-                console.error('Error updating notifications in Firestore: ', error);
-            }
-        };
-
-        updateNotifications();
-    }, [notifications]);
-
+const NotificationHandler = () => {
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationData, setNotificationData] = useState(null);
 
     useEffect(() => {
         const socket = io.connect('http://localhost:3000');
 
-        if (auth.currentUser) {
+        const handleNewReviewAlert = (data) => {
             console.log("Checking for new review notifications for " + auth.currentUser.displayName);
-            socket.on('newReviewAlert', (data) => {
-                // Append new review alert to the notifications array
-                setNotifications(prevNotifications => [...prevNotifications, data]);
-            });
+            setNotificationData(data);
+            setShowNotification(true);
+            setTimeout(() => {
+                setShowNotification(false);
+            }, 50000);
+        };
+
+        if (auth.currentUser) {
+            socket.on('newReviewAlert', handleNewReviewAlert);
         }
 
-
         return () => {
-            socket.off('newReviewAlert');
+            socket.off('newReviewAlert', handleNewReviewAlert);
         };
-    }, [auth.currentUser]);
+    }, []);
 
+    const handleCloseNotification = () => {
+        setShowNotification(false);
+    };
 
     return (
-        <div className="notifications-container">
-            {notifications.length === 0 ? (
-                <div className="notifications-empty">
-                    No notifications
-                </div>
-            ) : (
-                <div className="notifications-list">
-                    {notifications.map((notification, index) => (
-                        <div key={index} className="notification-item">{notification}</div>
-                    ))}
-                </div>
+        <>
+            {showNotification && (
+                <NotificationCard data={notificationData} onClose={handleCloseNotification} />
             )}
-        </div>
+        </>
     );
 };
 
-export default Notifications;
+export default NotificationHandler;
