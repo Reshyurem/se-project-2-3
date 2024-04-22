@@ -13,6 +13,30 @@ function Course(props) {
     const [reviews, setReviews] = useState([]);
     const [newReview, setNewReview] = useState('');
     const [isAlertSet, setIsAlertSet] = useState(false);
+    const [hasCourse, setHasCourse] = useState(false);
+
+    // check if the user has the courseId in their courses array
+    useEffect(() => {
+        const checkCourse = async () => {
+            try {
+                const userDoc = await firebase.firestore().collection('users').doc(auth.currentUser.uid).get();
+                const userData = userDoc.data();
+                console.log(userData);
+                console.log(userData.subscribedCourses);
+                console.log(props.courseId);
+                if (userData.subscribedCourses && userData.subscribedCourses.includes(props.courseId)) {
+                    setHasCourse(true);
+                } else {
+                    console.log('User does not have this course');
+                    setHasCourse(false);
+                }
+            } catch (error) {
+                console.error('Error fetching user data: ', error);
+            }
+        };
+
+        checkCourse();
+    }, [auth.currentUser.uid, props.courseId]);
 
     useEffect(() => {
         // Fetch existing reviews for the current course from Firestore
@@ -52,11 +76,33 @@ function Course(props) {
     const handleSubmitReview = async (e) => {
         e.preventDefault();
 
+        // Fetch the courseName from Firestore
+        let courseName = '';
+        try {
+            console.log("CourseId: ", props.courseId);
+            const courseQuery = await firebase.firestore().collection('courses').where('courseId', '==', props.courseId).limit(1).get();
+            if (!courseQuery.empty) {
+                courseQuery.forEach(doc => {
+                    courseName = doc.data().courseName;
+                    console.log("Course Name: ", courseName);
+                });
+            } else {
+                console.error('Course document not found');
+                return;
+            }
+        } catch (error) {
+            console.error('Error fetching course data: ', error);
+            return;
+        }
+
         // Create a new review object
+        console.log("Course Name: ", courseName)
         const newReviewData = {
             courseId: props.courseId,
             review: newReview,
             userId: auth.currentUser.uid,
+            username: auth.currentUser.displayName,
+            courseName: courseName
         };
 
         // Emit the new review event to the server
@@ -77,6 +123,8 @@ function Course(props) {
         setNewReview('');
     };
 
+
+
     const handleDeleteReviews = async () => {
         try {
             // Delete all reviews from the 'reviews' collection in Firestore
@@ -94,69 +142,70 @@ function Course(props) {
         }
     };
 
-    const handleSetAlert = async () => {
-        try {
-            const userRef = firebase.firestore().collection('users').doc(auth.currentUser.uid);
-            await userRef.update({
-                courseAlerts: firebase.firestore.FieldValue.arrayUnion(props.courseId)
-            });
-            setIsAlertSet(true);
-            console.log('Course alert set successfully!');
-        } catch (error) {
-            console.error('Error setting course alert: ', error);
-        }
-    };
 
-    const handleRemoveAlert = async () => {
-        try {
-            const userRef = firebase.firestore().collection('users').doc(auth.currentUser.uid);
-            await userRef.update({
-                courseAlerts: firebase.firestore.FieldValue.arrayRemove(props.courseId)
-            });
-            setIsAlertSet(false);
-            console.log('Course alert removed successfully!');
-        } catch (error) {
-            console.error('Error removing course alert: ', error);
-        }
-    };
 
     return (
+        <>
         <div className="course-container">
-            {localStorage.getItem('accountType') === 'professor' && (
-                <div>
-                    <h1>Course Reviews</h1>
-                    <div className="reviews-list">
-                        {reviews.map((review, index) => (
-                            <div key={index} className="review">
-                                <p>{review.review}</p>
-                            </div>
-                        ))}
+            <h1>Course Reviews</h1>
+            <div className="reviews-list">
+                {reviews.map((review, index) => (
+                    <div key={index} className="review">
+                        <p>{review.review}</p>
                     </div>
-                </div>
-            )}
-            {localStorage.getItem('accountType') === 'student' && (
-                <div className="add-review">
-                    <h2>Add Review</h2>
-                    <form onSubmit={handleSubmitReview} className="review-form">
-                        <label htmlFor="newReview" className="form-label">Your Review:</label>
-                        <textarea
-                            id="newReview"
-                            value={newReview}
-                            onChange={(e) => setNewReview(e.target.value)}
-                            required
-                            className="form-input"
-                        />
-                        <button type="submit" className="submit-button">Submit Review</button>
-                    </form>
-                </div>
-            )}
-            {/* <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
-            {isAlertSet ? (
-                <button onClick={handleRemoveAlert} className="remove-alert-button">Remove from Alerts</button>
-            ) : (
-                <button onClick={handleSetAlert} className="set-alert-button"><FontAwesomeIcon icon={faBell} /> Set Alert</button>
-            )} */}
+                ))}
+            </div>
+            {/* <div className="add-review">
+                <h2>Add Review</h2>
+                <form onSubmit={handleSubmitReview} className="review-form">
+                    <label htmlFor="newReview" className="form-label">Your Review:</label>
+                    <textarea
+                        id="newReview"
+                        value={newReview}
+                        onChange={(e) => setNewReview(e.target.value)}
+                        required
+                        className="form-input"
+                    />
+                </form>
+            </div> */}
         </div>
+            <div>
+                View Chatroom {hasCourse}
+            </div>
+            {hasCourse && (
+                <div className="course-container">
+                    {localStorage.getItem('accountType') === 'professor' && (
+                        <div>
+                            <h1>Course Reviews</h1>
+                            <div className="reviews-list">
+                                {reviews.map((review, index) => (
+                                    <div key={index} className="review">
+                                        <p>{review.review}</p>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+                    )}
+                    {localStorage.getItem('accountType') === 'student' && (
+                        <div className="add-review">
+                            <h2>Add Review</h2>
+                            <form onSubmit={handleSubmitReview} className="review-form">
+                                <label htmlFor="newReview" className="form-label">Your Review:</label>
+                                <textarea
+                                    id="newReview"
+                                    value={newReview}
+                                    onChange={(e) => setNewReview(e.target.value)}
+                                    required
+                                    className="form-input"
+                                />
+                                <button type="submit" className="submit-button">Submit Review</button>
+                            </form>
+                        </div>
+                    )}
+                    <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
+                </div>
+            )}
+        </>
     );
 }
 

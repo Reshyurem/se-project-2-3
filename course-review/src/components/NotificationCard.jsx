@@ -8,10 +8,10 @@ const NotificationCard = ({ data, onClose }) => {
         <div className="notification-card">
             <div className="notification-header">
                 <FontAwesomeIcon icon={faBell} style={{ fontSize: "18px", color: "yellow" }} />
-                <div className="notification-title">New Review Posted</div>
+                <div className="notification-title">{data.username} posted a review in {data.courseName}</div>
             </div>
             <span className="close-btn" onClick={onClose}>x</span>
-            <p className="notification-data">{data}</p>
+            <p className="notification-data">{data.review}</p>
         </div>
     );
 };

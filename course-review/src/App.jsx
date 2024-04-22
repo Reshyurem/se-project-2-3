@@ -48,7 +48,7 @@ function App() {
                     <Route
                         key={course.courseId}
                         path={`/courses/${course.courseId}`}
-                        element={<Course courseId={course.id} />} // Assuming you have a Course component
+                        element={<Course courseId={course.courseId} />} // Assuming you have a Course component
                     />
                 ))}
             </Routes>
