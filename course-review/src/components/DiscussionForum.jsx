@@ -11,6 +11,7 @@ function DiscussionForum(props) {
     const [replyContent, setReplyContent] = useState('');
     const [showNewPostForm, setShowNewPostForm] = useState(false);
     const [showReplyForm, setShowReplyForm] = useState({});
+    const [postReplies, setPostReplies] = useState({});
 
     useEffect(() => {
         const fetchPosts = async () => {
@@ -34,6 +35,19 @@ function DiscussionForum(props) {
                 });
     
                 setPosts(postsData);
+    
+                // Fetch replies for each post
+                const postRepliesData = {};
+                for (const post of postsData) {
+                    const repliesSnapshot = await firestore.collection(`/courses/${courseIdDocId}/posts/${post.id}/replies`).get();
+                    const repliesData = repliesSnapshot.docs.map(doc => {
+                        const reply = doc.data();
+                        reply.id = doc.id;
+                        return reply;
+                    });
+                    postRepliesData[post.id] = repliesData;
+                }
+                setPostReplies(postRepliesData);
             } catch (error) {
                 console.error('Error fetching posts: ', error);
             }
@@ -94,7 +108,7 @@ function DiscussionForum(props) {
     };
 
 
-    const handleReplySubmit = async (postId, replyContent) => {
+    const handleReplySubmit = async (postId, replyContent, parentReplyId = null) => {
         try {
             const courseQuerySnapshot = await firestore.collection('courses').where('courseId', '==', props.courseId).get();
     
@@ -110,25 +124,50 @@ function DiscussionForum(props) {
                 author: auth.currentUser.displayName,
                 createdAt: firebase.firestore.FieldValue.serverTimestamp() // Include server timestamp
             };
-    
-            const replyRef = await firestore
-                .collection(`/courses/${courseIdDocId}/posts`)
-                .doc(postId)
-                .collection('replies')
-                .add(replyData); // Firestore generates a unique ID for the reply
+
+            let replyRef;
+            if (parentReplyId) {
+                // If this is a reply to a reply (nested reply)
+                replyRef = await firestore
+                    .collection(`/courses/${courseIdDocId}/posts/${postId}/replies/${parentReplyId}/replies`)
+                    .add(replyData);
+            } else {
+                // If this is a reply to a post
+                replyRef = await firestore
+                    .collection(`/courses/${courseIdDocId}/posts/${postId}/replies`)
+                    .add(replyData);
+            }
+
             console.log('Reply added successfully!');
             
+            // Update UI to reflect new reply
             const updatedPosts = posts.map((post) => {
                 if (post.id === postId) {
-                    return {
-                        ...post,
-                        replies: [...post.replies, { ...replyData, id: replyRef.id }], // Assigning the document ID as reply ID
-                    };
+                    if (parentReplyId) {
+                        // If this is a reply to a reply
+                        const updatedReplies = post.replies.map((reply) => {
+                            if (reply.id === parentReplyId) {
+                                return {
+                                    ...reply,
+                                    replies: [...(reply.replies || []), { ...replyData, id: replyRef.id }],
+                                };
+                            }
+                            return reply;
+                        });
+                        return { ...post, replies: updatedReplies };
+                    } else {
+                        // If this is a reply to a post
+                        return {
+                            ...post,
+                            replies: [...post.replies, { ...replyData, id: replyRef.id }],
+                        };
+                    }
                 }
                 return post;
             });
+
             setPosts(updatedPosts);
-    
+
             // Hide the reply form after submission and clear reply content
             setShowReplyForm({ ...showReplyForm, [postId]: false });
             setReplyContent('');
@@ -142,85 +181,10 @@ function DiscussionForum(props) {
         setShowNewPostForm(!showNewPostForm);
     };
 
-    const toggleReplyForm = (postId) => {
-        setShowReplyForm({ ...showReplyForm, [postId]: !showReplyForm[postId] });
+    const toggleReplyForm = (postId, parentReplyId = null) => {
+        const key = parentReplyId ? `${postId}_${parentReplyId}` : postId;
+        setShowReplyForm({ ...showReplyForm, [key]: !showReplyForm[key] });
     };  
-
-    const getReplies = async (postId) => {
-        try {
-            const courseQuerySnapshot = await firestore.collection('courses').where('courseId', '==', props.courseId).get();
-    
-            if (courseQuerySnapshot.empty) {
-                console.error(`No course found with courseId ${props.courseId}`);
-                return;
-            }
-    
-            const courseIdDocId = courseQuerySnapshot.docs[0].id;
-    
-            const repliesSnapshot = await firestore.collection(`/courses/${courseIdDocId}/posts/${postId}/replies`).get();
-    
-            const repliesData = repliesSnapshot.docs.map(doc => {
-                const reply = doc.data();
-                reply.id = doc.id;
-                return reply;
-            });
-    
-            // Return the replies data
-            return repliesData;
-        } catch (error) {
-            console.error('Error fetching replies: ', error);
-            return []; // Return an empty array if there's an error
-        }
-    };
-
-    const renderReplies = (postId,replies) => {
-        try {
-            // const replies = await getReplies(postId);
-            console.log(replies)
-            console.log("******")
-            console.log(postId);
-    
-            return (
-                <div className="replies">
-                    <h4>Replies:</h4>
-                    {replies && replies.length > 0 ? (
-                        replies.map((reply, index) => (
-                            <div key={index} className="reply">
-                                <p>{reply.content}</p>
-                                <p>Posted on: {new Date(reply.createdAt.seconds * 1000).toLocaleString()}</p>
-    
-                                <button onClick={() => toggleReplyForm(reply.id)}>
-                                    {showReplyForm[reply.id] ? 'Cancel Reply' : 'Reply'}
-                                </button>
-                                {showReplyForm[reply.id] && (
-                                    <form
-                                        onSubmit={(e) => {
-                                            e.preventDefault();
-                                            handleReplySubmit(reply.id, replyContent);
-                                        }}
-                                    >
-                                        <input
-                                            type="text"
-                                            value={replyContent}
-                                            onChange={(e) => setReplyContent(e.target.value)}
-                                            required
-                                        />
-                                        <button type="submit">Submit Reply</button>
-                                    </form>
-                                )}
-                            </div>
-                        ))
-                    ) : (
-                        <p>No replies yet.</p>
-                    )}
-                </div>
-            );
-        } catch (error) {
-            console.error('Error rendering replies: ', error);
-            return null; // Return null or a fallback UI if there's an error
-        }
-    };
-    
 
     return (
         <div className="discussion-forum">
@@ -274,8 +238,48 @@ function DiscussionForum(props) {
                                 <button type="submit">Submit Reply</button>
                             </form>
                         )}
-    
-                        {renderReplies(post.id,post.replies)}
+
+                        {postReplies[post.id] && (
+                            <div className="replies">
+                                <h4>Replies:</h4>
+                                {postReplies[post.id].length > 0 ? (
+                                    postReplies[post.id].map((reply, index) => (
+                                        <div key={index} className="reply">
+                                            <p>{reply.content}</p>
+                                            <p>Author: {reply.author}</p>
+                                            <p>Posted on: {new Date(reply.createdAt.seconds * 1000).toLocaleString()}</p>
+                                            <button onClick={() => toggleReplyForm(post.id, reply.id)}>Reply</button>
+                                            {showReplyForm[`${post.id}_${reply.id}`] && (
+                                                <form
+                                                    onSubmit={(e) => {
+                                                        e.preventDefault();
+                                                        handleReplySubmit(post.id, replyContent, reply.id);
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="text"
+                                                        value={replyContent}
+                                                        onChange={(e) => setReplyContent(e.target.value)}
+                                                        required
+                                                    />
+                                                    <button type="submit">Submit Reply</button>
+                                                </form>
+                                            )}
+                                            {/* Render nested replies */}
+                                            {reply.replies && reply.replies.map((nestedReply, nestedIndex) => (
+                                                <div key={nestedIndex} className="nested-reply">
+                                                    <p>{nestedReply.content}</p>
+                                                    <p>Author: {nestedReply.author}</p>
+                                                    <p>Posted on: {new Date(nestedReply.createdAt.seconds * 1000).toLocaleString()}</p>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ))
+                                ) : (
+                                    <p>No replies yet.</p>
+                                )}
+                            </div>
+                        )}
                     </div>
                 ))}
             </div>
