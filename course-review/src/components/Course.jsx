@@ -7,6 +7,7 @@ import '../css/Course.css';
 import io from 'socket.io-client'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBell } from '@fortawesome/free-solid-svg-icons';
+import { Link } from 'react-router-dom';
 
 function Course(props) {
     const socket = io.connect('http://localhost:3000')
@@ -169,9 +170,7 @@ function Course(props) {
                 </form>
             </div> */}
         </div>
-            <div>
-                View Chatroom {hasCourse}
-            </div>
+            
             {hasCourse && (
                 <div className="course-container">
                     {localStorage.getItem('accountType') === 'professor' && (
@@ -205,6 +204,11 @@ function Course(props) {
                     <button onClick={handleDeleteReviews} className="delete-reviews-button">Delete All Reviews</button>
                 </div>
             )}
+
+<div>
+                    <Link to={`/courses/${props.courseId}/forum`}><button> View Discussion Forum</button></Link>
+                              
+            </div>
         </>
     );
 }

@@ -11,6 +11,8 @@ import { useAuthState } from 'react-firebase-hooks/auth';
 import { useCollectionData } from 'react-firebase-hooks/firestore';
 import { auth, firestore } from './firebase';
 
+// import Create from "Create";
+
 // components
 import SignIn from './components/auth/SignIn';
 import Home from './components/Home';
@@ -18,6 +20,9 @@ import Navbar from './components/Navbar';
 import Courses from './components/Courses';
 import Course from './components/Course';
 import Profile from './components/Profile';
+import DiscussionForum from './components/DiscussionForum';
+
+
 import Notifications from './components/Notifications';
 
 
@@ -51,6 +56,18 @@ function App() {
                         element={<Course courseId={course.courseId} />} // Assuming you have a Course component
                     />
                 ))}
+                {courses.map(course => (
+                    <Route
+                        key={course.courseId}
+                        path={`/courses/${course.courseId}/forum`}
+                        element={
+                            <DiscussionForum courseId={course.courseId} />
+                        }
+                    />
+                ))}
+
+            
+
             </Routes>
         </Router>
     );
